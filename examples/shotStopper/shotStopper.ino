@@ -32,6 +32,9 @@
 #define MAX_SHOT_DURATION_S 50      //Primarily useful for latching switches, since user
                                     // looses control of the paddle once the system
                                     // latches.
+#define FLUSH_HOLD_S 2              //Momentary switches only. A press held longer than this
+                                    // while idle is ignored, since it is used to start
+                                    // the machine's flush rather than a shot
 #define BUTTON_READ_PERIOD_MS 5
 #define DRIP_DELAY_S          3     // Time after the shot ended to measure the final weight
 
@@ -104,6 +107,7 @@ int buttonArr[BUTTON_STATE_ARRAY_LENGTH];            // last 4 readings of the b
 // button 
 int in = REEDSWITCH ? REED_IN : IN;
 bool buttonPressed = false; //physical status of button
+float buttonPressed_s = 0;  //time the button was last pressed
 bool buttonLatched = false; //electrical status of button
 unsigned long lastButtonRead_ms = 0;
 int newButtonState = 0;
@@ -381,6 +385,7 @@ void scaleConnected_task(){
   if(newButtonState && buttonPressed == false ){
     Serial.println("ButtonPressed");
     buttonPressed = true;
+    buttonPressed_s = seconds_f();
     if(!MOMENTARY || REEDSWITCH){
       shot.brewing = true;
       setBrewingState(shot.brewing);
@@ -412,11 +417,20 @@ void scaleConnected_task(){
   ){
     Serial.println("Button Released");
     buttonPressed = false;
-    shot.brewing = !shot.brewing;
-    if(!shot.brewing){
-      shot.end = ENDTYPE::BUTTON;
+    if(MOMENTARY 
+    && !REEDSWITCH 
+    && !shot.brewing 
+    && seconds_f() - buttonPressed_s > FLUSH_HOLD_S
+    ){
+      Serial.println("Long press, flush ignored");
     }
-    setBrewingState(shot.brewing);
+    else{
+      shot.brewing = !shot.brewing;
+      if(!shot.brewing){
+        shot.end = ENDTYPE::BUTTON;
+      }
+      setBrewingState(shot.brewing);
+    }
   }
     
   //Max duration reached
@@ -448,10 +462,10 @@ void scaleConnected_task(){
 
   // SHOT ANALYSIS  --------------------------------
 
-  //Detect error of shot
+  //Detect error of shot. Shots shorter than MIN_SHOT_DURATION_S (flushes) are ignored
   if(!timerOnly()
   && shot.start_timestamp_s
-  && shot.end_s
+  && shot.end_s > MIN_SHOT_DURATION_S
   && currentWeight >= (goalWeight - weightOffset)
   && seconds_f() > shot.start_timestamp_s + shot.end_s + DRIP_DELAY_S){
     shot.start_timestamp_s = 0;
