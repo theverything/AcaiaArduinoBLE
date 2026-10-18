@@ -34,7 +34,7 @@
 #define MAX_SHOT_DURATION_S 50      //Primarily useful for latching switches, since user
                                     // looses control of the paddle once the system
                                     // latches.
-#define FLUSH_HOLD_S 2              //Momentary switches only. A press held longer than this
+#define FLUSH_HOLD_S 1              //Momentary switches only. A press held longer than this
                                     // while idle is ignored, since it is used to start
                                     // the machine's flush rather than a shot
 #define BUTTON_READ_PERIOD_MS 5
