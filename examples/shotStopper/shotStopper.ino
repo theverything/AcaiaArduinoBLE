@@ -44,7 +44,7 @@
 #define WEIGHT_ADDR 0  // Use the first byte of EEPROM to store the goal weight
 #define OFFSET_ADDR 1  
 
-#define DEBUG false
+#define DEBUG false             // Prints every weight reading and the library's debug output
 
 #define N 10                        // Number of datapoints used to calculate trend line
 
@@ -326,7 +326,9 @@ void scaleConnected_task(){
   if(scale.newWeightAvailable()){
     currentWeight = scale.getWeight();
 
-    Serial.print(currentWeight);
+    if(DEBUG){
+      Serial.print(currentWeight);
+    }
 
     if(!shot.brewing){
       setColor(GREEN);
@@ -339,15 +341,19 @@ void scaleConnected_task(){
       shot.shotTimer = shot.time_s[shot.datapoints];
       shot.datapoints++;
 
-      Serial.print(" ");
-      Serial.print(shot.shotTimer);
-
       //get the likely end time of the shot
       calculateEndTime(&shot);
-      Serial.print(" ");
-      Serial.print(shot.expected_end_s);
+
+      if(DEBUG){
+        Serial.print(" ");
+        Serial.print(shot.shotTimer);
+        Serial.print(" ");
+        Serial.print(shot.expected_end_s);
+      }
     }
-    Serial.println();
+    if(DEBUG){
+      Serial.println();
+    }
   }
 
   // Read button every period
