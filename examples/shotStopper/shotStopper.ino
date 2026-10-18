@@ -12,7 +12,8 @@
   To set the Weight over BLE, use a BLE app such as LightBlue to connect
   to the "shotStopper" BLE device and read/write to the weight characteristic,
   otherwise the weight is defaulted to 36g.
-  Setting the weight to 0 disables brew by weight, the same as TIMER_ONLY.
+  Setting the weight below MIN_GOAL_WEIGHT (10g) disables brew by weight,
+  the same as TIMER_ONLY.
 
   Created by Tate Mazer, 2023.
 
@@ -26,6 +27,7 @@
 #include <EEPROM.h>
 
 #define MAX_OFFSET 5                // In case an error in brewing occured
+#define MIN_GOAL_WEIGHT 10          //Goal weights below this disable brew by weight
 #define MIN_SHOT_DURATION_S 3       //Useful for flushing the group.
                                     // This ensure that the system will ignore
                                     // "shots" that last less than this duration
@@ -146,8 +148,8 @@ void setup() {
 
   //If eeprom isn't initialized and has an 
   // unreasonable weight/offset, default to 36g/1.5g
-  // A goal weight of 0 is kept, since it disables brew by weight
-  if( goalWeight != 0 && ((goalWeight < 10) || (goalWeight > 200)) ){
+  // Goal weights below MIN_GOAL_WEIGHT are kept, since they disable brew by weight
+  if( goalWeight > 200 ){
     goalWeight = 36;
     Serial.print("Goal Weight set to: ");
     Serial.println(goalWeight);
@@ -285,7 +287,7 @@ void calculateEndTime(Shot* s){
 }
 
 bool timerOnly(){
-  return TIMER_ONLY || goalWeight == 0;
+  return TIMER_ONLY || goalWeight < MIN_GOAL_WEIGHT;
 }
 
 float seconds_f(){
