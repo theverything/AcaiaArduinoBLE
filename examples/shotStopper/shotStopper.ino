@@ -12,6 +12,7 @@
   To set the Weight over BLE, use a BLE app such as LightBlue to connect
   to the "shotStopper" BLE device and read/write to the weight characteristic,
   otherwise the weight is defaulted to 36g.
+  Setting the weight to 0 disables brew by weight, the same as TIMER_ONLY.
 
   Created by Tate Mazer, 2023.
 
@@ -141,7 +142,8 @@ void setup() {
 
   //If eeprom isn't initialized and has an 
   // unreasonable weight/offset, default to 36g/1.5g
-  if( (goalWeight < 10) || (goalWeight > 200) ){
+  // A goal weight of 0 is kept, since it disables brew by weight
+  if( goalWeight != 0 && ((goalWeight < 10) || (goalWeight > 200)) ){
     goalWeight = 36;
     Serial.print("Goal Weight set to: ");
     Serial.println(goalWeight);
@@ -231,7 +233,7 @@ void setBrewingState(bool brewing){
 
     shot.end_s = seconds_f() - shot.start_timestamp_s;
     scale.stopTimer();
-    if(!TIMER_ONLY 
+    if(!timerOnly() 
     && MOMENTARY 
     && (ENDTYPE::WEIGHT == shot.end || ENDTYPE::TIME == shot.end)){
       //Pulse button to stop brewing
@@ -239,7 +241,7 @@ void setBrewingState(bool brewing){
       delay(300);
       digitalWrite(OUT,LOW);Serial.println("wrote low");
       buttonPressed = false;
-    }else if(!TIMER_ONLY && !MOMENTARY){
+    }else if(!timerOnly() && !MOMENTARY){
       buttonLatched = false;
       buttonPressed = false;
       Serial.println("Button Unlatched and not pressed");
@@ -276,6 +278,10 @@ void calculateEndTime(Shot* s){
     // if M is negative (which can happen during a blooming shot when the flow stops) assume max duration (issue #29)
     s->expected_end_s = (m < 0) ? MAX_SHOT_DURATION_S : (goalWeight - weightOffset - b)/m;
   }
+}
+
+bool timerOnly(){
+  return TIMER_ONLY || goalWeight == 0;
 }
 
 float seconds_f(){
@@ -321,7 +327,7 @@ void scaleConnected_task(){
     }
 
     // update shot trajectory
-    if(shot.brewing && !TIMER_ONLY){
+    if(shot.brewing && !timerOnly()){
       shot.time_s[shot.datapoints] = seconds_f()-shot.start_timestamp_s;
       shot.weight[shot.datapoints] = currentWeight;
       shot.shotTimer = shot.time_s[shot.datapoints];
@@ -382,7 +388,7 @@ void scaleConnected_task(){
   }
     
   // button held. Take over for the rest of the shot.
-  else if(!TIMER_ONLY
+  else if(!timerOnly()
   && !MOMENTARY 
   && shot.brewing 
   && !buttonLatched 
@@ -414,7 +420,7 @@ void scaleConnected_task(){
   }
     
   //Max duration reached
-  else if(!TIMER_ONLY 
+  else if(!timerOnly() 
   && shot.brewing 
   && shot.shotTimer > MAX_SHOT_DURATION_S ){
     shot.brewing = false;
@@ -429,7 +435,7 @@ void scaleConnected_task(){
   }
 
   //End shot
-  if(!TIMER_ONLY 
+  if(!timerOnly() 
   && shot.brewing 
   && shot.shotTimer >= shot.expected_end_s
   && shot.shotTimer >  MIN_SHOT_DURATION_S
@@ -443,7 +449,7 @@ void scaleConnected_task(){
   // SHOT ANALYSIS  --------------------------------
 
   //Detect error of shot
-  if(!TIMER_ONLY
+  if(!timerOnly()
   && shot.start_timestamp_s
   && shot.end_s
   && currentWeight >= (goalWeight - weightOffset)
