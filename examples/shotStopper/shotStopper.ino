@@ -430,7 +430,7 @@ void scaleConnected_task(){
     && !shot.brewing 
     && seconds_f() - buttonPressed_s > FLUSH_HOLD_S
     ){
-      Serial.println("Long press, flush ignored");
+      Serial.println("Long press: machine flush, shot not started");
     }
     else{
       shot.brewing = !shot.brewing;
