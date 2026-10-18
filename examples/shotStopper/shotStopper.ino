@@ -204,6 +204,11 @@ void loop() {
 void setBrewingState(bool brewing){
   if(brewing){
     Serial.println("shot started");
+    if(!TIMER_ONLY && goalWeight < MIN_GOAL_WEIGHT){
+      Serial.print("Timer only: goal weight is under ");
+      Serial.print(MIN_GOAL_WEIGHT);
+      Serial.println("g, brew by weight is off");
+    }
     shot.start_timestamp_s = seconds_f();
     shot.shotTimer = 0;
     shot.datapoints = 0;
