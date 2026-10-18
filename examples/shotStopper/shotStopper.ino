@@ -47,7 +47,7 @@
 #define N 10                        // Number of datapoints used to calculate trend line
 
 //User defined***
-#define MOMENTARY false       //Define brew switch style. 
+#define MOMENTARY true        //Define brew switch style. 
                               // True for momentary switches such as GS3 AV, Silvia Pro
                               // false for latching switches such as Linea Mini/Micra
 #define REEDSWITCH false      // Set to true if the brew state is being determined 
@@ -55,7 +55,7 @@
 #define AUTOTARE true         // Automatically tare when shot is started 
                               // Will tare also 3 seconds after a latching switch brew for non-bookoo scales
                               // (as defined by MOMENTARY)
-#define CAN_TARE_START_TIMER false // If set, reset timer, start timer and tare are done in one command (supported by Bookoo scales only)
+#define CAN_TARE_START_TIMER true  // If set, reset timer, start timer and tare are done in one command (supported by Bookoo scales only)
 #define TIMER_ONLY false      // disables brew by weight functionality, and only automates the timer/tare
 //***************
 
