@@ -144,7 +144,7 @@ void setup() {
   Serial.print("Goal Weight retrieved: ");
   Serial.println(goalWeight);
   Serial.print("offset retrieved: ");
-  Serial.println(goalWeight);
+  Serial.println(weightOffset);
 
   //If eeprom isn't initialized and has an 
   // unreasonable weight/offset, default to 36g/1.5g
