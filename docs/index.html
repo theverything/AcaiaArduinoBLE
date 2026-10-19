@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>shotStopper</title>
+  <meta name="description" content="Set the shotStopper's goal weight over Bluetooth.">
+  <meta name="theme-color" content="#EEF1EF" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#161B1D" media="(prefers-color-scheme: dark)">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Saira:wdth,wght@50..125,100..900&display=swap">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="bar">
+    <span class="led" id="led" aria-hidden="true"></span>
+    <div class="who">
+      <h1>shotStopper</h1>
+      <p class="status" id="status" role="status">Not connected</p>
+    </div>
+    <button class="connect" id="connect" type="button">Connect</button>
+  </header>
+
+  <main>
+    <section class="intro" id="intro">
+      <p id="introText">Connect to your shotStopper to see and change the goal weight.</p>
+    </section>
+
+    <section class="goal" id="goal" hidden>
+      <form id="goalForm" autocomplete="off">
+        <label class="goal-label" for="goalInput">Goal weight</label>
+        <div class="readout">
+          <button class="step" type="button" id="minus" aria-label="Decrease goal by 1 gram">−</button>
+          <div class="number">
+            <input id="goalInput" type="number" inputmode="numeric" min="10" max="200" step="1" required>
+            <span class="unit">g</span>
+          </div>
+          <button class="step" type="button" id="plus" aria-label="Increase goal by 1 gram">+</button>
+        </div>
+        <p class="off-note" id="offNote" hidden>Brew by weight is off. The shotStopper only tares and runs the scale timer.</p>
+        <button class="save" id="save" type="submit" disabled>Save goal</button>
+      </form>
+
+      <div class="toggle-row">
+        <label class="switch" for="bbw">
+          <span>
+            <strong>Brew by weight</strong>
+            <small>Stop the shot automatically at the goal weight</small>
+          </span>
+          <input type="checkbox" id="bbw" role="switch">
+          <span class="track" aria-hidden="true"></span>
+        </label>
+      </div>
+
+      <p class="hint">The shotStopper applies changes while it's connected to your scale.</p>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
